@@ -7,6 +7,8 @@ const app = express();
 app.get('/login', (req, res) => {
   res.cookie('sessionId', 'SESSION-ABC-123', {
     // httpOnly NOT set (vulnerable)
+    //remedy by setting httpOnly to true
+    httpOnly: true,
     secure: false,     // false for localhost demo
     sameSite: 'lax'
   });
@@ -23,10 +25,13 @@ app.get('/login', (req, res) => {
  */
 app.get('/profile', (req, res) => {
   const name = req.query.name || 'Guest';
+  // code has reflexted XSS due to lack of input sanitization
+  // fixed it by adding escape
+  const escape = require("escape-html")
 
   res.send(`
     <h1>Profile</h1>
-    <p>Hello ${name}</p>
+    <p>Hello ${escape(name)}</p>
     <p>Try injecting JavaScript in the URL.</p>
   `);
 });
